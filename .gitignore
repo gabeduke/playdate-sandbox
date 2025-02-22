@@ -1,0 +1,8 @@
+# Ignore build artifacts from the Playdate SDK
+builds/
+# Ignore any logs generated during the development
+logs/
+# Ignore temporary files created by the editor
+*.tmp
+# Ignore project settings files
+*.pdx
