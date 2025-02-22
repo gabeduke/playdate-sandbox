@@ -50,35 +50,49 @@ function Player:update()
     local crankChange = pd.getCrankChange()
 
     if self.mapType == "side" then
-        -- Side-scrolling movement
+        -- D-pad movement
         if pd.buttonIsPressed(pd.kButtonLeft) then
-            self.dx = -1
+            self.dx = -self.speed
         elseif pd.buttonIsPressed(pd.kButtonRight) then
-            self.dx = 1
+            self.dx = self.speed
         else
             self.dx = 0
         end
-
-        -- Crank adjusts speed
+    
+        -- Crank controls jumping force
         if math.abs(crankChange) > 1 then
-            self.speed = math.abs(crankChange) * 0.1
-        else
-            self.speed = 2
+            self.jumpForce = -3 + (crankChange * -0.05)
         end
-
-        -- Gravity and jumping
+    
+        -- Jumping with A button
         if pd.buttonJustPressed(pd.kButtonA) and self.isGrounded then
             self.dy = self.jumpForce
             self.isGrounded = false
         end
+    
+        -- Gravity
         self.dy = self.dy + self.gravity
-    else
-        -- Top-down movement
-        local crankPosition = pd.getCrankPosition()
-        self.dx = math.cos(math.rad(crankPosition))
-        self.dy = math.sin(math.rad(crankPosition))
-        self.speed = pd.buttonIsPressed(pd.kButtonB) and 4 or 2
     end
+
+    if self.mapType == "top-down" then
+        -- More responsive movement
+        local crankPosition = pd.getCrankPosition()
+        self.dx = math.cos(math.rad(crankPosition)) * self.speed
+        self.dy = math.sin(math.rad(crankPosition)) * self.speed
+    
+        -- D-pad overrides crank movement
+        if pd.buttonIsPressed(pd.kButtonLeft) then
+            self.dx = -self.speed
+        elseif pd.buttonIsPressed(pd.kButtonRight) then
+            self.dx = self.speed
+        end
+        if pd.buttonIsPressed(pd.kButtonUp) then
+            self.dy = -self.speed
+        elseif pd.buttonIsPressed(pd.kButtonDown) then
+            self.dy = self.speed
+        end
+    end
+    
 
     -- Apply movement
     local nextX = self.x + (self.dx * self.speed)

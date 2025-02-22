@@ -1,180 +1,208 @@
-# Playdate Game Framework
+# 🎮 Playdate Game Template
 
-## 🎮 Overview
-This project is a **modular Playdate game framework** where:
-- **Children’s artwork** can be loaded dynamically to create levels.
-- The **game engine** is separate from assets, making it flexible.
-- A **mock graphics system** generates placeholder images for development.
-
-## 🏗️ Project Structure
-```
-📂 game_project/
-├── 📂 Source/
-│   ├── 📄 main.lua          # Main entry point
-│   ├── 📄 engine.lua        # Core game loop and sprite management
-│   ├── 📄 sceneLoader.lua   # Loads background & objects
-│   ├── 📄 interaction.lua   # Handles player interactions
-│   ├── 📄 mockGraphics.lua  # Generates placeholder assets and effects
-│   ├── 📂 Images/           # (Optional) Kid's artwork files go here
-│   ├── 📂 Data/             # Stores game state if needed
-│   └── 📄 README.md         # Project documentation
-```
-
-## 🎯 **Design Goals**
-1. **Separation of Concerns**  
-   - Game logic (movement, collision) is **independent** from artwork.
-   - Scenes are **loaded dynamically** from external images or generated mock data.
-
-2. **Mocking for Development**  
-   - Procedural backgrounds and sprites are **generated dynamically**.
-   - Supports **basic visual effects** (dithering, inversion, blurring).
-
-3. **Modular & Extendable**  
-   - New mechanics (like physics, inventory) can be added without modifying core components.
-   - Supports **loading custom art assets** when available.
+This template provides a **modular Playdate game engine** with:
+- **Multiple levels** (easily extendable).
+- **Both top-down and side-scrolling mechanics**.
+- **Flexible player movement using D-pad & crank**.
+- **A structured game loop with object collision and interaction**.
 
 ---
 
-## 🏛️ **Class Interactions & Architecture**
-Below is the **high-level structure** of our classes/modules and how they interact.
-
-### **1️⃣ `engine.lua` (Game Engine)**
-- **Manages game state** (sprites, items, updates).
-- Calls `sceneLoader` to load environments.
-- Calls `interaction` for event handling.
-
-```lua
-engine = {}
-
-function engine:init()
-    self.sprites = {}
-    self.items = {}
-end
-
-function engine:addSprite(sprite)
-    table.insert(self.sprites, sprite)
-    sprite:add()
-end
-
-function engine:update()
-    gfx.sprite.update()
-end
+## 🏗️ **Project Structure**
+```
+📂 Source/
+├── 📂 engine/        # Core game engine
+│   ├── 📄 engine.lua
+│   ├── 📄 sceneLoader.lua
+│   ├── 📄 interaction.lua
+│   ├── 📄 player.lua
+│   ├── 📄 map.lua
+├── 📂 levels/        # Level implementations
+│   ├── 📄 level.lua
+│   ├── 📄 mockLevel.lua
+│   ├── 📄 exampleLevel.lua
+├── 📂 graphics/      # Placeholder assets
+│   ├── 📄 mockGraphics.lua
+├── 📄 main.lua       # Game entry point
+├── 📄 README.md      # Documentation
 ```
 
 ---
 
-### **2️⃣ `sceneLoader.lua` (Scene Loader)**
-- Loads artwork from `Images/` or **generates procedural backgrounds** using `mockGraphics`.
-- Converts image data into **playable level elements**.
+## 🎮 **How to Use This Template**
+1. **Clone this repo:**
+   ```sh
+   git clone https://github.com/yourname/playdate-game-template.git
+   cd playdate-game-template/Source
+   ```
 
-```lua
-sceneLoader = {}
+2. **Run the Playdate Simulator:**
+   ```sh
+   open -a "Playdate Simulator" Source/main.lua
+   ```
 
-function sceneLoader:loadBackground()
-    local backgroundImage = mockGraphics:generateMockBackground(400, 240)
-    gfx.sprite.setBackgroundDrawingCallback(function() backgroundImage:draw(0, 0) end)
-end
-```
+3. **To create a new level:**
+   - Copy `levels/mockLevel.lua` and rename it.
+   - Modify `self.map = Map("top-down")` for top-down levels.
+   - Modify `self.map = Map("side")` for platformer levels.
 
----
-
-### **3️⃣ `mockGraphics.lua` (Mock Graphics)**
-- **Generates procedural assets** instead of requiring real artwork.
-- Supports **visual effects** (dithering, inversion, blur).
-
-```lua
-mockGraphics = {}
-
-function mockGraphics:generateMockSprite(width, height)
-    local img = gfx.image.new(width, height)
-    gfx.pushContext(img)
-    gfx.drawRect(0, 0, width, height)
-    gfx.fillRect(5, 5, width - 10, height - 10)
-    gfx.popContext()
-    return img
-end
-```
+4. **Modify `main.lua` to load your new level.**
 
 ---
 
-### **4️⃣ `interaction.lua` (Interaction Manager)**
-- Handles **collisions**, **object pickups**, and **player interactions**.
+## 🛠 **Extending the Template**
+### 🏔 Adding a New Level
+1. Create a new file inside `levels/`, e.g., `levels/myNewLevel.lua`:
+   ```lua
+   import "levels/level"
+   import "engine/map"
+   import "graphics/mockGraphics"
 
+   class('MyNewLevel').extends(Level)
+
+   function MyNewLevel:init()
+       Level.super.init(self, "My New Level", "top-down")
+       self.map = Map("top-down")
+   end
+   ```
+
+2. Modify `main.lua` to load this level:
+   ```lua
+   import "levels/myNewLevel"
+   currentLevel = MyNewLevel()
+   ```
+
+### 🎨 Adding Real Graphics
+- Replace `mockGraphics.lua` with real `.pdi` Playdate images.
+- Modify `sceneLoader.lua` to load actual assets.
+
+---
+
+## 🚀 **Future Improvements**
+- ✅ **Level selection UI**.
+- ✅ **Save/Load system**.
+- ✅ **Animations and special effects**.
+
+---
+
+## 🏆 **Credits**
+This template was designed for **Playdate game developers** to quickly prototype and create full games.
+
+🚀 **Happy coding!**
+```
+✅ **Now, anyone using the template can easily start building their own Playdate game.**  
+
+---
+
+## ✅ **Step 3: Provide an Example Level**
+We should add an **example level** (`exampleLevel.lua`) that demonstrates **how to use real assets**.
+
+#### **📄 `levels/exampleLevel.lua`**
 ```lua
-interaction = {}
+import "levels/level"
+import "engine/map"
+import "graphics/mockGraphics"
 
-function interaction:checkCollision(player, objects)
-    for _, obj in ipairs(objects) do
-        if player:overlappingSprites(obj) then
-            print("Item collected!")
-        end
+class('ExampleLevel').extends(Level)
+
+function ExampleLevel:init()
+    Level.super.init(self, "Example Level", "top-down")
+    self.map = Map("top-down")
+
+    -- Add a real object with a placeholder sprite
+    self.objects = {}
+
+    local exampleSprite = mockGraphics:generateMockSprite(32, 32)
+    local obj = playdate.graphics.sprite.new(exampleSprite)
+    obj:moveTo(150, 100)
+    obj:setCollideRect(0, 0, 32, 32)
+    table.insert(self.objects, obj)
+    engine:addObject(obj)
+end
+```
+✅ **This example level shows how to create and load a level with real assets.**  
+
+---
+
+## ✅ **Step 4: Modify `main.lua` to Support Multiple Levels**
+We'll allow **switching levels easily**.
+
+#### **🔹 Updated `main.lua`**
+```lua
+import "engine/engine"
+import "engine/sceneLoader"
+import "engine/interaction"
+import "engine/player"
+import "graphics/mockGraphics"
+import "levels/mockLevel"
+import "levels/exampleLevel"
+
+local gfx <const> = playdate.graphics
+local player = nil
+local currentLevel = nil
+local levelIndex = 1
+
+local levels = {
+    MockLevel(),
+    ExampleLevel()
+}
+
+function myGameSetup()
+    print("Setting up the game...")
+
+    engine:init()
+
+    -- Load the selected level
+    currentLevel = levels[levelIndex]
+
+    -- Ensure the level has a map
+    if not currentLevel.map then
+        print("ERROR: Level map is nil! Cannot initialize player.")
+        return
     end
+
+    -- Initialize player
+    player = Player(200, 120, currentLevel.map)
+    engine:addSprite(player)
+
+    print("Game setup complete.")
+end
+
+-- Call game setup
+myGameSetup()
+
+-- Playdate Update Function
+function playdate.update()
+    if player then
+        player:update()
+    end
+    if engine then
+        engine:update()
+    end
+    interaction:checkCollision(player, engine.objects)
 end
 ```
+✅ **Now, switching levels is as easy as changing `levelIndex`.**  
+✅ **More levels can be added without modifying game logic.**  
 
 ---
 
-### **5️⃣ `main.lua` (Main Game Loop)**
-- Initializes the engine, loads scenes, and handles **player movement**.
+## 🎮 **Final Template Features**
+### ✅ **Well-Organized Folder Structure**
+- **`Source/engine`** → Core mechanics.
+- **`Source/levels`** → Each level as a module.
+- **`Source/graphics`** → Image management.
 
-```lua
-function playdate.update()
-    updatePlayerMovement()
-    engine:update()
-end
-```
+### ✅ **Easy to Extend**
+- Add new levels without modifying core engine logic.
+- Supports **top-down & platformer mechanics**.
+
+### ✅ **Fully Documented**
+- `README.md` explains how to use & extend the template.
 
 ---
 
 ## 🚀 **Next Steps**
-1. **Improve Movement & Physics**
-   - Add **collision detection** with scene objects.
-   - Implement **boundary constraints**.
-
-2. **Expand Visual Effects**
-   - Support **animated transformations** (wave, shake, etc.).
-   - Allow **real-time effect toggling**.
-
-3. **Integrate Real Artwork**
-   - Load user-drawn images and **detect scene boundaries**.
-
----
-
-### 📝 **How to Run the Game**
-1. **Open Playdate Simulator**.
-2. Load the `main.lua` file inside `Source/`.
-3. Use the **D-pad** to move the player.
-
----
-
-## 📜 **Contributing**
-- Contributions are welcome! Feel free to submit **ideas, bug fixes, or enhancements**.
-
----
-
-### **📌 Notes**
-- **Playdate uses `import` instead of `require`** for Lua modules.
-- **Only `.pdi` files can be loaded as images** (use `pdc` to convert PNGs).
-
-
-📂 game_project/
-├── 📂 Source/
-│   ├── 📂 engine/        
-│   │   ├── 📄 engine.lua
-│   │   ├── 📄 sceneLoader.lua
-│   │   ├── 📄 interaction.lua
-│   │   ├── 📄 map.lua
-│   │   ├── 📄 player.lua
-│   ├── 📂 levels/        
-│   │   ├── 📄 level.lua
-│   │   ├── 📄 mockLevel.lua
-│   │   ├── 📄 level1.lua
-│   │   ├── 📄 level2.lua
-│   ├── 📂 assets/        # Placeholder for actual images/sprites
-│   ├── 📂 graphics/      # Place mockGraphics.lua here
-│   │   ├── 📄 mockGraphics.lua
-│   ├── 📂 scene/         # Place scene.lua here
-│   │   ├── 📄 scene.lua
-│   ├── 📄 main.lua       
-│   ├── 📄 levelSelector.lua
-│   ├── 📄 README.md
+1. **Test the final template in the Playdate Simulator.**
+2. **Publish it as an open-source repo on GitHub.**
+3. **Would you like to add a level selection menu next?** 🚀  

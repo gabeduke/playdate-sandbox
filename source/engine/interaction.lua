@@ -1,14 +1,18 @@
-import "CoreLibs/object"
-import "CoreLibs/graphics"
+import "gameState"
 
-local gfx <const> = playdate.graphics
+interaction = {}
 
-class('Interaction').extends()
+function interaction:checkCollision(player, objects)
+    if not player or not objects then return end
 
-function Interaction:checkCollision(player, objects)
     for _, obj in ipairs(objects) do
-        if player:overlapping(obj) then
-            print("Collision detected with object at: " .. obj.x .. ", " .. obj.y)
+        if player:overlappingSprites(obj) then
+            local objID = tostring(obj) -- Unique ID for the object
+
+            if not gameState:isItemCollected(objID) then
+                gameState:collectItem(objID)
+                obj:remove() -- ✅ Remove the object upon collection
+            end
         end
     end
 end

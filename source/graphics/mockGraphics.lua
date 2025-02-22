@@ -2,21 +2,28 @@ local gfx <const> = playdate.graphics
 mockGraphics = {}
 
 function mockGraphics:generateMockBackground(width, height)
-    print("Generating procedural background of size", width, height)
+    local gfx = playdate.graphics
     local img = gfx.image.new(width, height)
 
     gfx.pushContext(img)
-    for x = 0, width, 5 do  -- Make grid smaller for better visuals
-        for y = 0, height, 5 do
-            if (x // 5 + y // 5) % 2 == 0 then
-                gfx.fillRect(x, y, 5, 5)
+        gfx.setColor(gfx.kColorWhite)
+        gfx.fillRect(0, 0, width, height) -- ✅ Ensure a solid background first
+        
+        gfx.setColor(gfx.kColorBlack)
+        
+        -- ✅ Draw a checkered pattern
+        for y = 0, height, 20 do
+            for x = 0, width, 20 do
+                if (x // 20 + y // 20) % 2 == 0 then
+                    gfx.fillRect(x, y, 10, 10)
+                end
             end
         end
-    end
     gfx.popContext()
 
     return img
 end
+
 
 function mockGraphics:generateMockSprite(width, height)
     print("Generating mock sprite of size", width, height)

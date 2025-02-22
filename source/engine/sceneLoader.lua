@@ -1,5 +1,7 @@
 import "graphics/mockGraphics"
 
+local gfx <const> = playdate.graphics -- ✅ Ensure `gfx` is defined
+
 sceneLoader = {}
 
 function sceneLoader:loadMap(mapType)
@@ -12,9 +14,18 @@ function sceneLoader:loadMap(mapType)
     end
 end
 
+function sceneLoader:clearBackground()
+    playdate.graphics.sprite.setBackgroundDrawingCallback(
+        function()
+            playdate.graphics.clear(playdate.graphics.kColorWhite)
+        end
+    )
+end
+
 function sceneLoader:loadTopDownMap()
-    print("Generating top-down mock background...")
+    print("Generating top-down checkered background...")
     local backgroundImage = mockGraphics:generateMockBackground(400, 240)
+
     playdate.graphics.sprite.setBackgroundDrawingCallback(
         function()
             backgroundImage:draw(0, 0)
@@ -25,12 +36,20 @@ end
 function sceneLoader:loadSideMap()
     print("Generating side-view mock background...")
     local backgroundImage = mockGraphics:generateMockBackground(400, 240)
+
+    gfx.pushContext(backgroundImage)
+        gfx.setColor(gfx.kColorBlack)
+        gfx.fillRect(0, 200, 400, 5) -- ✅ Adds a dark "ground" area
+    gfx.popContext()
+
     playdate.graphics.sprite.setBackgroundDrawingCallback(
         function()
             backgroundImage:draw(0, 0)
         end
     )
 end
+
+
 
 -- Standardized object loading (optional, useful for procedural levels)
 function sceneLoader:loadObjects(objectCount)
