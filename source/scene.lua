@@ -1,6 +1,29 @@
 local pd <const> = playdate
 local gfx <const> = playdate.graphics
 
+-- Define Platform class
+class('Platform').extends(gfx.sprite)
+
+function Platform:init(x, y, width, height)
+    Platform.super.init(self)
+    
+    -- Create visible platform
+    local img = gfx.image.new(width, height)
+    gfx.pushContext(img)
+        -- Make sure we're drawing in black
+        gfx.setColor(gfx.kColorBlack)
+        gfx.fillRect(0, 0, width, height)
+    gfx.popContext()
+    
+    self:setImage(img)
+    self:moveTo(x + width/2, y + height/2)
+    self:setCollideRect(0, 0, width, height)
+    self:add()
+    
+    -- Debug print
+    print("Created platform at: " .. x .. "," .. y)
+end
+
 -- Define Collectible class first
 class('Collectible').extends(gfx.sprite)
 
@@ -38,10 +61,24 @@ end
 -- Define Scene class
 class('Scene').extends()
 
+-- Add mock level data
+local mockLevel = {
+    platforms = {
+        {x = 50, y = 200, width = 300, height = 20},   -- ground
+        {x = 100, y = 140, width = 200, height = 20},  -- middle
+        {x = 150, y = 80, width = 100, height = 20},   -- top
+    },
+    collectibles = {
+        {x = 75, y = 160, type = "star"},
+        {x = 200, y = 100, type = "triangle"},
+        {x = 300, y = 60, type = "circle"}
+    }
+}
+
 function Scene.new()
     local scene = Scene()
     
-    -- Create background sprite
+    -- Create background first
     local bgImage = scene:createPlaceholderBackground()
     local bgSprite = gfx.sprite.new()
     bgSprite:setImage(bgImage)
@@ -49,39 +86,34 @@ function Scene.new()
     bgSprite:moveTo(200, 120)
     bgSprite:add()
     
+    -- Create platforms next
+    for _, p in ipairs(mockLevel.platforms) do
+        Platform.new(p.x, p.y, p.width, p.height)
+    end
+    
+    -- Create collectibles last
     scene:createCollectibles()
+    
     return scene
 end
 
 function Scene:createPlaceholderBackground()
     local img = gfx.image.new(400, 240)
     gfx.pushContext(img)
-        -- Draw a more visible background
-        gfx.setDitherPattern(0.5)
-        gfx.fillRect(0, 0, 400, 240)
-        
-        -- Draw some platform-like elements
-        gfx.setColor(gfx.kColorBlack)
-        gfx.fillRect(50, 180, 300, 20)
-        gfx.fillRect(100, 120, 200, 20)
-        gfx.fillRect(150, 60, 100, 20)
-        
-        -- Add some decorative elements
-        gfx.drawCircleInRect(180, 30, 40, 40)
-        gfx.drawRect(300, 100, 50, 50)
+        -- Draw a light grid pattern
+        for x = 0, 400, 40 do
+            gfx.drawLine(x, 0, x, 240)
+        end
+        for y = 0, 240, 40 do
+            gfx.drawLine(0, y, 400, y)
+        end
     gfx.popContext()
     return img
 end
 
 function Scene:createCollectibles()
-    -- Create collectibles in interesting placeholder positions
-    local points = {
-        {x = 100, y = 100, type = "star"},
-        {x = 300, y = 150, type = "circle"},
-        {x = 200, y = 80, type = "triangle"}
-    }
-    
-    for _, point in ipairs(points) do
-        Collectible.new(point.x, point.y, point.type)
+    for _, item in ipairs(mockLevel.collectibles) do
+        local collectible = Collectible.new(item.x, item.y, item.type)
+        collectible:setZIndex(50)  -- Above platforms, below player
     end
 end

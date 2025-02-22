@@ -21,35 +21,34 @@ local player
 
 -- Initialize game
 function playdate.init()
-    -- Initialize graphics
+    -- Initialize display
     gfx.setBackgroundColor(gfx.kColorWhite)
-    gfx.clear() -- Clear to background color
     
-    -- Create scene and player
+    -- Create scene (this creates background, platforms, and collectibles)
     currentScene = Scene.new()
-    player = Player.new(200, 120)
     
-    -- Debug info
-    print("Game initialized!")
+    -- Create player last (so it's on top)
+    player = Player.new(200, 120)
+    player:setZIndex(100)
+    
+    -- Print initial sprite count for debugging
+    print("Initial sprite count: " .. #gfx.sprite.getAllSprites())
 end
 
 function playdate.update()
-    -- Update sprites and redraw screen
+    -- Clear the screen properly
+    gfx.clear(gfx.kColorWhite)
+    
+    -- Force redraw background
     gfx.sprite.redrawBackground()
+    
+    -- Update and draw all sprites
     gfx.sprite.update()
     
-    -- Draw debug grid
-    for x = 0, 400, 40 do
-        gfx.drawLine(x, 0, x, 240)
-    end
-    for y = 0, 240, 40 do
-        gfx.drawLine(0, y, 400, y)
-    end
+    -- Debug info on top
+    gfx.setColor(gfx.kColorBlack)
+    gfx.drawText("Sprites: " .. #gfx.sprite.getAllSprites(), 5, 5)
     
-    -- Draw UI
-    if player then
-        gfx.drawTextAligned("Collect: " .. player.collectibles, 340, 20, kTextAlignment.right)
-    end
-    
+    -- Update timers
     pd.timer.updateTimers()
 end

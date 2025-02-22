@@ -23,14 +23,22 @@ end
 function Player:createPlaceholderPlayer()
     local img = gfx.image.new(32, 32)
     gfx.pushContext(img)
-        -- Draw a more visible player
-        gfx.fillRect(4, 4, 24, 24)
-        gfx.setColor(gfx.kColorWhite)
-        gfx.fillCircle(16, 16, 8)
+        -- Draw player with visible collision box
         gfx.setColor(gfx.kColorBlack)
-        gfx.drawCircle(16, 16, 8)
+        gfx.fillRect(4, 4, 24, 24)
+        -- Add direction indicator
+        gfx.drawTriangle(16, 4, 28, 16, 16, 28)
     gfx.popContext()
     return img
+end
+
+-- Add debug drawing
+function Player:draw()
+    Player.super.draw(self)
+    -- Draw collision boundary
+    gfx.setColor(gfx.kColorBlack)
+    local x, y, w, h = self:getCollideRect()
+    gfx.drawRect(x, y, w, h)
 end
 
 function Player:update()
