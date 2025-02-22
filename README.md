@@ -155,3 +155,26 @@ end
 ### **📌 Notes**
 - **Playdate uses `import` instead of `require`** for Lua modules.
 - **Only `.pdi` files can be loaded as images** (use `pdc` to convert PNGs).
+
+
+📂 game_project/
+├── 📂 Source/
+│   ├── 📂 engine/        
+│   │   ├── 📄 engine.lua
+│   │   ├── 📄 sceneLoader.lua
+│   │   ├── 📄 interaction.lua
+│   │   ├── 📄 map.lua
+│   │   ├── 📄 player.lua
+│   ├── 📂 levels/        
+│   │   ├── 📄 level.lua
+│   │   ├── 📄 mockLevel.lua
+│   │   ├── 📄 level1.lua
+│   │   ├── 📄 level2.lua
+│   ├── 📂 assets/        # Placeholder for actual images/sprites
+│   ├── 📂 graphics/      # Place mockGraphics.lua here
+│   │   ├── 📄 mockGraphics.lua
+│   ├── 📂 scene/         # Place scene.lua here
+│   │   ├── 📄 scene.lua
+│   ├── 📄 main.lua       
+│   ├── 📄 levelSelector.lua
+│   ├── 📄 README.md

@@ -1,16 +1,15 @@
 local gfx <const> = playdate.graphics
 mockGraphics = {}
 
--- Generate a procedural background (checkerboard pattern)
 function mockGraphics:generateMockBackground(width, height)
     print("Generating procedural background of size", width, height)
     local img = gfx.image.new(width, height)
 
     gfx.pushContext(img)
-    for x = 0, width, 10 do
-        for y = 0, height, 10 do
-            if (x // 10 + y // 10) % 2 == 0 then
-                gfx.fillRect(x, y, 10, 10)
+    for x = 0, width, 5 do  -- Make grid smaller for better visuals
+        for y = 0, height, 5 do
+            if (x // 5 + y // 5) % 2 == 0 then
+                gfx.fillRect(x, y, 5, 5)
             end
         end
     end
@@ -19,7 +18,6 @@ function mockGraphics:generateMockBackground(width, height)
     return img
 end
 
--- Generate a placeholder sprite with effects support
 function mockGraphics:generateMockSprite(width, height)
     print("Generating mock sprite of size", width, height)
     local img = gfx.image.new(width, height)
@@ -32,7 +30,7 @@ function mockGraphics:generateMockSprite(width, height)
     return img
 end
 
--- ✅ **Make sure effects is properly initialized**
+-- 🎨 Effects Module
 mockGraphics.effects = {}
 
 function mockGraphics.effects:applyDither(image)

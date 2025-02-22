@@ -2,27 +2,30 @@ import "CoreLibs/object"
 import "CoreLibs/graphics"
 import "CoreLibs/sprites"
 import "CoreLibs/timer"
+import "engine/sceneLoader"
 
 local gfx <const> = playdate.graphics
-
--- Ensure engine is a global variable
 engine = {}
 
 function engine:init()
     print("Initializing Engine...")
     self.sprites = {}
-    self.items = {}
+    self.objects = {} -- New: Tracks objects for collision
 end
 
 function engine:addSprite(sprite)
-    if sprite then
-        table.insert(self.sprites, sprite)
-        sprite:add()
-        print("Added a sprite!")
-    else
-        print("Error: Trying to add nil sprite!")
-    end
+    table.insert(self.sprites, sprite)
+    sprite:add()
 end
+
+function engine:addObject(obj)
+    table.insert(self.objects, obj)
+    obj:add()
+end
+
+-- function engine:update()
+--     gfx.sprite.update()
+-- end
 
 function engine:update()
     -- Slow down logs by only printing every second
