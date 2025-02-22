@@ -1,54 +1,68 @@
--- Below is a small example program where you can move a circle
--- around with the crank. You can delete everything in this file,
--- but make sure to add back in a playdate.update function since
--- one is required for every Playdate game!
--- =============================================================
+import "engine"
+import "sceneLoader"
+import "interaction"
+import "mockGraphics"
 
--- Importing libraries used for drawCircleAtPoint and crankIndicator
-import "CoreLibs/graphics"
-import "CoreLibs/sprites"
-import "CoreLibs/timer"
-import "scene"
-import "player"
-
--- Localizing commonly used globals
-local pd <const> = playdate
 local gfx <const> = playdate.graphics
+local player = nil
 
--- Initialize game components
-local currentScene
-local player
+function myGameSetup()
+    print("Setting up the game...")
 
--- Initialize game
-function playdate.init()
-    -- Initialize display
-    gfx.setBackgroundColor(gfx.kColorWhite)
-    
-    -- Create scene (this creates background, platforms, and collectibles)
-    currentScene = Scene.new()
-    
-    -- Create player last (so it's on top)
-    player = Player.new(200, 120)
-    player:setZIndex(100)
-    
-    -- Print initial sprite count for debugging
-    print("Initial sprite count: " .. #gfx.sprite.getAllSprites())
+    -- Initialize engine
+    engine:init()
+
+    -- Generate a mock background
+    sceneLoader:loadBackground()
+
+    -- Create a mock player sprite
+    local originalSprite = mockGraphics:generateMockSprite(32, 32)
+
+    -- Apply a random effect
+    local playerImage = originalSprite
+    local effectType = math.random(1, 3)  -- Randomly apply an effect
+
+    if effectType == 1 then
+        playerImage = mockGraphics.effects:applyDither(originalSprite)
+        print("Applied Dither Effect!")
+    elseif effectType == 2 then
+        playerImage = mockGraphics.effects:applyInvert(originalSprite)
+        print("Applied Invert Effect!")
+    elseif effectType == 3 then
+        playerImage = mockGraphics.effects:applyBlur(originalSprite)
+        print("Applied Blur Effect!")
+    end
+
+    player = gfx.sprite.new(playerImage)
+    player:moveTo(200, 120)
+    engine:addSprite(player)
+
+    print("Game setup complete.")
 end
 
+-- Call game setup
+myGameSetup()
+
+-- Function to handle player movement
+function updatePlayerMovement()
+    local speed = 2  -- Adjust movement speed
+
+    if playdate.buttonIsPressed(playdate.kButtonUp) then
+        player:moveBy(0, -speed)
+    end
+    if playdate.buttonIsPressed(playdate.kButtonDown) then
+        player:moveBy(0, speed)
+    end
+    if playdate.buttonIsPressed(playdate.kButtonLeft) then
+        player:moveBy(-speed, 0)
+    end
+    if playdate.buttonIsPressed(playdate.kButtonRight) then
+        player:moveBy(speed, 0)
+    end
+end
+
+-- Playdate Update Function
 function playdate.update()
-    -- Clear the screen properly
-    gfx.clear(gfx.kColorWhite)
-    
-    -- Force redraw background
-    gfx.sprite.redrawBackground()
-    
-    -- Update and draw all sprites
-    gfx.sprite.update()
-    
-    -- Debug info on top
-    gfx.setColor(gfx.kColorBlack)
-    gfx.drawText("Sprites: " .. #gfx.sprite.getAllSprites(), 5, 5)
-    
-    -- Update timers
-    pd.timer.updateTimers()
+    updatePlayerMovement()
+    engine:update()
 end

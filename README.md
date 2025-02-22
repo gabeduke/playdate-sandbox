@@ -1,68 +1,157 @@
-# Playdate Art Explorer
+# Playdate Game Framework
 
-An interactive game that brings children's artwork to life on the Playdate console.
+## 🎮 Overview
+This project is a **modular Playdate game framework** where:
+- **Children’s artwork** can be loaded dynamically to create levels.
+- The **game engine** is separate from assets, making it flexible.
+- A **mock graphics system** generates placeholder images for development.
 
-## Overview
-Transform scanned artwork into explorable game worlds where players can navigate through the drawings, discover secrets, and collect items while experiencing the art in a new dimension.
+## 🏗️ Project Structure
+```
+📂 game_project/
+├── 📂 Source/
+│   ├── 📄 main.lua          # Main entry point
+│   ├── 📄 engine.lua        # Core game loop and sprite management
+│   ├── 📄 sceneLoader.lua   # Loads background & objects
+│   ├── 📄 interaction.lua   # Handles player interactions
+│   ├── 📄 mockGraphics.lua  # Generates placeholder assets and effects
+│   ├── 📂 Images/           # (Optional) Kid's artwork files go here
+│   ├── 📂 Data/             # Stores game state if needed
+│   └── 📄 README.md         # Project documentation
+```
 
-## Development Status
-Currently in Phase 1: Basic Mechanics
-- [x] Player movement
-- [x] Basic collectibles
-- [ ] Jumping mechanics
-- [ ] Platform collision
+## 🎯 **Design Goals**
+1. **Separation of Concerns**  
+   - Game logic (movement, collision) is **independent** from artwork.
+   - Scenes are **loaded dynamically** from external images or generated mock data.
 
-## Development Roadmap
+2. **Mocking for Development**  
+   - Procedural backgrounds and sprites are **generated dynamically**.
+   - Supports **basic visual effects** (dithering, inversion, blurring).
 
-### Phase 1: Core Mechanics
-- Add jumping physics
-- Implement solid platform collision
-- Add basic sound effects
-- Create level boundaries
+3. **Modular & Extendable**  
+   - New mechanics (like physics, inventory) can be added without modifying core components.
+   - Supports **loading custom art assets** when available.
 
-### Phase 2: Artwork Integration
-- Set up artwork processing pipeline
-- Create first playable art level
-- Add interactive elements from the drawings
-- Implement collision maps
+---
 
-### Phase 3: Enhanced Gameplay
-- Scene transitions
-- Special abilities
-- Score system
-- Sound effects
-- Hidden secrets
+## 🏛️ **Class Interactions & Architecture**
+Below is the **high-level structure** of our classes/modules and how they interact.
 
-### Phase 4: Polish
-- Menu system
-- Save progress
-- Achievements
-- Visual effects
+### **1️⃣ `engine.lua` (Game Engine)**
+- **Manages game state** (sprites, items, updates).
+- Calls `sceneLoader` to load environments.
+- Calls `interaction` for event handling.
 
-## Art Integration Guide
+```lua
+engine = {}
 
-### Preparing Artwork
-1. Select drawings with:
-   - High contrast elements
-   - Interesting shapes/patterns
-   - Potential platforms/obstacles
-   - Clear focal points
+function engine:init()
+    self.sprites = {}
+    self.items = {}
+end
 
-2. Scanning Process:
-   - Resolution: 400x240 (Playdate screen size)
-   - High contrast settings
-   - Clean white background
-   - Save as PNG
+function engine:addSprite(sprite)
+    table.insert(self.sprites, sprite)
+    sprite:add()
+end
 
-3. Image Processing:
-   - Convert to 1-bit black/white
-   - Clean up noise/artifacts
-   - Mark collision areas
-   - Identify interactive elements
+function engine:update()
+    gfx.sprite.update()
+end
+```
 
-### Level Design Tips
-- Use natural shapes as platforms
-- Create hidden paths through the artwork
-- Place collectibles in interesting locations
-- Add interactive elements from the drawings
-- Design connected layouts between scenes
+---
+
+### **2️⃣ `sceneLoader.lua` (Scene Loader)**
+- Loads artwork from `Images/` or **generates procedural backgrounds** using `mockGraphics`.
+- Converts image data into **playable level elements**.
+
+```lua
+sceneLoader = {}
+
+function sceneLoader:loadBackground()
+    local backgroundImage = mockGraphics:generateMockBackground(400, 240)
+    gfx.sprite.setBackgroundDrawingCallback(function() backgroundImage:draw(0, 0) end)
+end
+```
+
+---
+
+### **3️⃣ `mockGraphics.lua` (Mock Graphics)**
+- **Generates procedural assets** instead of requiring real artwork.
+- Supports **visual effects** (dithering, inversion, blur).
+
+```lua
+mockGraphics = {}
+
+function mockGraphics:generateMockSprite(width, height)
+    local img = gfx.image.new(width, height)
+    gfx.pushContext(img)
+    gfx.drawRect(0, 0, width, height)
+    gfx.fillRect(5, 5, width - 10, height - 10)
+    gfx.popContext()
+    return img
+end
+```
+
+---
+
+### **4️⃣ `interaction.lua` (Interaction Manager)**
+- Handles **collisions**, **object pickups**, and **player interactions**.
+
+```lua
+interaction = {}
+
+function interaction:checkCollision(player, objects)
+    for _, obj in ipairs(objects) do
+        if player:overlappingSprites(obj) then
+            print("Item collected!")
+        end
+    end
+end
+```
+
+---
+
+### **5️⃣ `main.lua` (Main Game Loop)**
+- Initializes the engine, loads scenes, and handles **player movement**.
+
+```lua
+function playdate.update()
+    updatePlayerMovement()
+    engine:update()
+end
+```
+
+---
+
+## 🚀 **Next Steps**
+1. **Improve Movement & Physics**
+   - Add **collision detection** with scene objects.
+   - Implement **boundary constraints**.
+
+2. **Expand Visual Effects**
+   - Support **animated transformations** (wave, shake, etc.).
+   - Allow **real-time effect toggling**.
+
+3. **Integrate Real Artwork**
+   - Load user-drawn images and **detect scene boundaries**.
+
+---
+
+### 📝 **How to Run the Game**
+1. **Open Playdate Simulator**.
+2. Load the `main.lua` file inside `Source/`.
+3. Use the **D-pad** to move the player.
+
+---
+
+## 📜 **Contributing**
+- Contributions are welcome! Feel free to submit **ideas, bug fixes, or enhancements**.
+
+---
+
+### **📌 Notes**
+- **Playdate uses `import` instead of `require`** for Lua modules.
+- **Only `.pdi` files can be loaded as images** (use `pdc` to convert PNGs).

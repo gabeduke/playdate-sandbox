@@ -1,72 +1,81 @@
-local pd <const> = playdate
-local gfx <const> = playdate.graphics
+import "CoreLibs/object"
+import "CoreLibs/graphics"
+import "CoreLibs/sprites"
+import "scene"
 
-import "scene"  -- This gives us access to the Collectible class
+local pd <const> = playdate
+local gfx <const> = pd.graphics
 
 class('Player').extends(gfx.sprite)
 
 function Player:init(x, y)
-    -- Call super constructor first
+    print("Initializing player at position: " .. x .. ", " .. y)
     Player.super.init(self)
     
-    -- Create placeholder player image if asset doesn't exist
-    local playerImage = self:createPlaceholderPlayer()
-    self:setImage(playerImage)
-    self:moveTo(x, y)
-    self:setCollideRect(0, 0, self:getSize())
-    self:add()  -- Add sprite to the display list
-    
-    self.speed = 3
-    self.collectibles = 0
-end
-
-function Player:createPlaceholderPlayer()
-    local img = gfx.image.new(32, 32)
+    -- Create player sprite
+    local playerSize = 20
+    local img = gfx.image.new(playerSize, playerSize, gfx.kColorClear)
     gfx.pushContext(img)
-        -- Draw player with visible collision box
         gfx.setColor(gfx.kColorBlack)
-        gfx.fillRect(4, 4, 24, 24)
-        -- Add direction indicator
-        gfx.drawTriangle(16, 4, 28, 16, 16, 28)
+        gfx.fillRoundRect(0, 0, playerSize, playerSize, 4)
     gfx.popContext()
-    return img
-end
+    
+    self:setImage(img)
+    self:moveTo(x, y)
+    self:setCollideRect(0, 0, playerSize, playerSize)
+    self:setZIndex(100)  -- Ensure player is above everything
 
--- Add debug drawing
-function Player:draw()
-    Player.super.draw(self)
-    -- Draw collision boundary
-    gfx.setColor(gfx.kColorBlack)
-    local x, y, w, h = self:getCollideRect()
-    gfx.drawRect(x, y, w, h)
+    -- Make sure to add the sprite
+    self:add()
+    print("Player initialized and added to sprite list.")
 end
 
 function Player:update()
-    local dx, dy = 0, 0
+    local crankChange = pd.getCrankChange()
     
+    -- Basic horizontal movement
     if pd.buttonIsPressed(pd.kButtonLeft) then
-        dx = -self.speed
+        self.dx = -self.speed
+        print("Moving left with speed: " .. self.speed)
     elseif pd.buttonIsPressed(pd.kButtonRight) then
-        dx = self.speed
+        self.dx = self.speed
+        print("Moving right with speed: " .. self.speed)
+    else
+        self.dx = 0
     end
     
-    if pd.buttonIsPressed(pd.kButtonUp) then
-        dy = -self.speed
-    elseif pd.buttonIsPressed(pd.kButtonDown) then
-        dy = self.speed
+    -- Apply gravity and jumping
+    if pd.buttonJustPressed(pd.kButtonA) and self.isGrounded then
+        self.dy = self.jumpForce
+        self.isGrounded = false
+        print("Jumping with force: " .. self.jumpForce)
     end
     
-    -- Constrain player to screen bounds
-    local newX = math.max(16, math.min(384, self.x + dx))
-    local newY = math.max(16, math.min(224, self.y + dy))
+    self.dy = self.dy + self.gravity
+    print("Applying gravity: " .. self.gravity .. ", New dy: " .. self.dy)
     
-    local actualX, actualY, collisions = self:moveWithCollisions(newX, newY)
+    -- Move and check collisions
+    local nextX = self.x + self.dx
+    local nextY = self.y + self.dy
+    print("Next position: (" .. nextX .. ", " .. nextY .. ")")
     
-    -- Handle collisions with collectibles
-    for _, collision in ipairs(collisions) do
-        if collision.other and collision.other:isa(Collectible) then
-            collision.other:collect()
-            self.collectibles += 1
+    -- Actually move the sprite
+    self:moveWithCollisions(nextX, nextY)
+end
+
+function Player:collisionResponse(other)
+    if other:isa(Platform) then
+        -- Basic platform collision
+        if self.dy > 0 then
+            self.isGrounded = true
+            print("Landed on platform, setting isGrounded to true")
         end
+        self.dy = 0
+        return "slide"
+    elseif other:isa(Collectible) then
+        other:collect()
+        print("Collected an item")
+        return "overlap"
     end
+    return "slide"
 end
