@@ -1,4 +1,3 @@
-
 ![TemplateBanner](https://github.com/user-attachments/assets/a0e438d1-9923-4525-ae5c-c0d179ec3bc7)
 
 # Playdate Template
@@ -111,3 +110,26 @@ Once you fill that out and build your project one more time, you can find the `.
     - You must fill this out before sharing your game
     - You can find more information about this file [here](https://sdk.play.date/Inside%20Playdate.html#pdxinfo)
 - `README.md` - The file you're reading (can be deleted)
+
+# Playdate Art Explorer
+
+A game that lets you explore kids' artwork in an interactive way.
+
+## Development Setup
+
+1. Install the Playdate SDK
+2. Run `pdc source game` to build
+
+## Adding Artwork
+
+TODO:
+- Scan artwork at 400x240 resolution
+- Convert to 1-bit black and white PNG
+- Save in `assets/scenes/` directory
+- Name files sequentially (scene1.png, scene2.png, etc.)
+
+Tips for scanning:
+- Use high contrast when scanning
+- Ensure clean white background
+- Save as PNG format
+- Use image editor to convert to 1-bit black/white
